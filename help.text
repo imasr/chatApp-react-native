@@ -1,0 +1,63 @@
+================================================================================
+      WATCHMAN FAILED
+================================================================================
+1. Error: A non-recoverable condition has triggered. Watchman needs your help!
+The triggering condition was at timestamp=1489123194:
+inotify-add-watch(/var/www/html/eventManager/android/app/src/main/res/mipmap-mdpi) ->
+The user limit on the total number of inotify watches was reached;
+increase the fs.inotify.max_user_watches sysctl All requests will continue to fail
+with this message until you resolve the underlying problem.
+You will find more information on fixing this at
+https://facebook.github.io/watchman/docs/troubleshooting.html#poison-inotify-add-watch
+
+================================================================================
+>>  watchman shutdown-server
+
+      {
+      "version": "4.5.0",
+      "shutdown-server": true
+      }
+
+>>  watchman watch-del-all [-- do it 3-4 times, untill you get result like]
+      {
+          "version": "4.5.0",
+          "roots": []
+      }
+
+
+================================================================================
+      IF ISSUE STILL NOT RESOLVED USE THIS.
+================================================================================
+    echo 9999 | sudo tee -a /proc/sys/fs/inotify/max_user_watches  && echo 99999 | sudo tee -a  /proc/sys/fs/inotify/max_queued_events && echo 999999 | sudo tee  -a /proc/sys/fs/inotify/max_user_instances && watchman  shutdown-server
+
+    or
+
+    echo 256 | sudo tee -a /proc/sys/fs/inotify/max_user_instances
+    echo 32768 | sudo tee -a /proc/sys/fs/inotify/max_queued_events
+    echo 65536 | sudo tee -a /proc/sys/fs/inotify/max_user_watches
+    watchman shutdown-server
+
+================================================================================
+      BUNDLE NOT LOADING
+================================================================================
+
+#ERROR  Metro Bundler can't listen on port 8081
+>> fuser -k -n tcp 8081
+
+Can't Connect to development Server - 500
+
+>> adb reverse tcp:8081 tcp:8081
+
+================================================================================
+ADB UNUSED DEVICE LISTS
+================================================================================
+>>  adb kill-server
+
+================================================================================
+METRO BUNDLER ISSUE
+================================================================================
+To resolve try the following:
+  1. Clear watchman watches: `watchman watch-del-all`.
+  2. Delete the `node_modules` folder: `rm -rf node_modules && npm install`.
+  3. Reset Metro Bundler cache: `rm -rf /tmp/metro-bundler-cache-*` or `npm start -- --reset-cache`.
+  4. Remove haste cache: `rm -rf /tmp/haste-map-react-native-packager-*`.
